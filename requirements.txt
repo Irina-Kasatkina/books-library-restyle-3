@@ -4,3 +4,4 @@ BeautifulSoup4==4.11.1
 lxml==4.9.1
 pathvalidate==2.5.2
 livereload==2.6.3
+more-itertools==8.14.0
