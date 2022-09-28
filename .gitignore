@@ -147,6 +147,7 @@ cython_debug/
 # This project
 books/
 images/
+pages/
 start.bat
 books_details.json
 index.html

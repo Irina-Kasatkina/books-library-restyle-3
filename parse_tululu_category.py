@@ -12,7 +12,7 @@ from parse_tululu_books import check_for_redirect, download_books
 
 logger = logging.getLogger(__file__)
 
-
+BOOKS_DETAILS_JSON_FILENAME = 'books_details.json'
 QUERY_TIMEOUT = 30
 
 
@@ -30,14 +30,6 @@ def create_parser():
     parser.add_argument('-e', '--end_page', type=int, default=0,
                         help='номер страницы каталога "Научная фантастика", '
                              'заканчивая которой происходит скачивание')
-    parser.add_argument('-d', '--dest_folder', type=str, default='',
-                        help='путь к каталогу, в который происходит скачивание')
-    parser.add_argument('-t', '--skip_txt', action='store_true',
-                        help='не скачивать тексты книг')
-    parser.add_argument('-i', '--skip_imgs', action='store_true',
-                        help='не скачивать картинки обложек книг')
-    parser.add_argument('-j', '--json_path', type=str, default='',
-                        help='путь к json-файлу с результатами скачивания')
     return parser
 
 
@@ -127,12 +119,11 @@ def main():
 
     books_urls = get_books_urls(start_page, end_page)
     if books_urls:
-        books_details = download_books(books_urls, dest_folder=args.dest_folder,
-                                       skip_txt=args.skip_txt, skip_imgs=args.skip_imgs)
+        books_details = download_books(books_urls)
 
-        json_path = args.json_path if args.json_path else 'books_details.json'
-        with open(json_path, 'w', encoding='utf8') as json_file:
-            json.dump(books_details, json_file, ensure_ascii=False, indent=4)
+        if books_details:
+            with open(BOOKS_DETAILS_JSON_FILENAME, 'w', encoding='utf8') as json_file:
+                json.dump(books_details, json_file, ensure_ascii=False, indent=4)
 
 
 if __name__ == '__main__':

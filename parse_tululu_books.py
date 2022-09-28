@@ -14,7 +14,9 @@ import requests
 logger = logging.getLogger(__file__)
 
 
+IMAGES_FOLDER = 'images'
 QUERY_TIMEOUT = 30
+TEXTS_FOLDER = 'books'
 
 
 def create_parser():
@@ -29,30 +31,18 @@ def create_parser():
                         help='номер книги, начиная с которого происходит скачивание')
     parser.add_argument('-e', '--end_id', type=int, default=0,
                         help='номер книги, по который происходит скачивание')
-    parser.add_argument('-d', '--dest_folder', type=str, default='',
-                        help='путь к каталогу, в который происходит скачивание')
-    parser.add_argument('-t', '--skip_txt', action='store_true',
-                        help='не скачивать тексты книг')
-    parser.add_argument('-i', '--skip_imgs', action='store_true',
-                        help='не скачивать картинки обложек книг')
-    parser.add_argument('-j', '--json_path', type=str, default='',
-                        help='путь к json-файлу с результатами скачивания')
     return parser
 
 
-def download_books(books_urls, dest_folder='', skip_txt=False, skip_imgs=False):
+def download_books(books_urls):
     """Загружает тексты и картинки обложек книг с сайта tululu.org."""
-
-    if skip_txt and skip_imgs:
-        return None
 
     books_details = []
     for book_url in books_urls:
         book_id = urlsplit(book_url).path.strip('/').strip('b')
         while True:
             try:
-                book_details = download_book(book_url, dest_folder=dest_folder,
-                                             skip_txt=skip_txt, skip_imgs=skip_imgs)
+                book_details = download_book(book_url)
                 if book_details:
                     books_details.append(book_details)
             except AttributeError:
@@ -74,51 +64,49 @@ def download_books(books_urls, dest_folder='', skip_txt=False, skip_imgs=False):
     return books_details
 
 
-def download_book(book_url, dest_folder='', skip_txt=False, skip_imgs=False):
+def download_book(book_url):
     """Загружает текст и картинку обложки указанной книги с сайта tululu.org."""
-
-    if skip_txt and skip_imgs:
-        return None
 
     response = requests.get(book_url)
     response.raise_for_status()
     check_for_redirect(response)
 
     book_details = parse_book_page(response.content)
-    title = book_details.get('title')
     book_id = urlsplit(book_url).path.strip('/').strip('b')
+    title = book_details.get('title')
     text_url = book_details.get('text_url')
 
-    book_path = ''
-    if not skip_txt and text_url:
-        text_url = urljoin(book_url, text_url)
-        text_filename = f'{title}.txt'
-        text_folder = 'books'
-        text_filename = download_file(text_url, dest_folder, text_folder, text_filename)
-        book_path = str(PurePosixPath(text_folder) / text_filename)
-
-    if not skip_txt and not text_url:
+    if not text_url:
         logger.warning(
             f'Книга с номером {book_id} ("{title}") не загружена, '
             'так как на сайте её текст отсутствует.'
         )
+        return
 
-    img_src = ''
     img_url = book_details.get('img_url')
+    if not img_url:
+        logger.warning(
+            f'Книга с номером {book_id} ("{title}") не загружена, '
+            'так как на сайте отсутствует картинка её обложки.'
+        )
+        return
 
-    if not skip_imgs and img_url:
-        img_url = urljoin(book_url, img_url)
-        img_filename = get_filename_from_url(img_url)
-        img_folder = 'images'
-        img_filename = download_file(img_url, dest_folder, img_folder, 
-                                     img_filename)
-        img_src = str(PurePosixPath(img_folder) / img_filename)
+    book_path = ''
+    img_src = ''
+
+    text_url = urljoin(book_url, text_url)
+    text_filename = f'{title}.txt'
+    download_file(text_url, TEXTS_FOLDER, text_filename)
+
+    img_url = urljoin(book_url, img_url)
+    img_filename = get_filename_from_url(img_url)
+    download_file(img_url, IMAGES_FOLDER, img_filename)
 
     return {
         'title': book_details['title'],
         'author': book_details['author'],
-        'img_src': img_src,
-        'book_path': book_path,
+        'img_filename': img_filename,
+        'text_filename': text_filename,
         'genres': book_details['genres']
     }
 
@@ -155,7 +143,7 @@ def parse_book_page(response_content):
             'comments': comments, 'genres': genres}
 
 
-def download_file(url, dest_folder, folder, filename):
+def download_file(url, file_folder, filename):
     """Скачивает файл с указанным url на локальный диск."""
 
     response = requests.get(url)
@@ -163,15 +151,13 @@ def download_file(url, dest_folder, folder, filename):
 
     check_for_redirect(response)
 
-    dirpath = (Path(dest_folder) if dest_folder else Path.cwd()) / folder
+    dirpath = Path.cwd() / file_folder
     Path(dirpath).mkdir(parents=True, exist_ok=True)
 
     filename = sanitize_filename(filename)
     filepath = dirpath / filename
     with open(filepath, "wb") as file:
         file.write(response.content)
-
-    return filename
 
 
 def get_filename_from_url(url):
@@ -202,9 +188,7 @@ def main():
 
     books_urls = [f'https://tululu.org/b{book_id}/'
                   for book_id in range(start_id, end_id+1)]
-    books_details = download_books(books_urls, dest_folder=args.dest_folder,
-                                   skip_txt=args.skip_txt,
-                                   skip_imgs=args.skip_imgs)
+    books_details = download_books(books_urls)
 
     json_path = args.json_path if args.json_path else 'books_details.json'
     with open(json_path, 'w', encoding='utf8') as json_file:
