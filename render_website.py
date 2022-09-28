@@ -1,10 +1,12 @@
 import json
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from livereload import Server
 
 
-def main():
+def on_reload():
+    """Заносит в index.html данные о книгах из books_details.json."""
+
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
@@ -16,15 +18,20 @@ def main():
     books = json.loads(books_json)
 
     template = env.get_template('template.html')
-    rendered_page = template.render(
-        books=books,
-    )
+    rendered_page = template.render(books=books)
 
     with open('index.html', 'w', encoding="utf8") as file:
         file.write(rendered_page)
 
-    server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
-    server.serve_forever()
+
+def main():
+    on_reload()
+
+    # Сайт смотреть на 127.0.0.1:5500
+    server = Server()
+    server.watch('template.html', on_reload)
+    server.serve(root='.')
+
 
 if __name__ == '__main__':
     main()
