@@ -14,7 +14,7 @@
     <div class="container">
       <div class="row">
         <div class="col">
-          <div class="ml-0">
+          <div class="ml-0 mt-3">
             <nav aria-label="Навигация по страницам каталога">
               <ul class="pagination">
                 <li class="{{'page-item disabled' if current_page_number == 1 else 'page-item'}}">
@@ -45,6 +45,11 @@
                     <div class="card-body">
                       <h5 class="card-title">{{book.title}}</h5>
                       <h6 class="card-title">{{book.author}}</h6>
+                      <p>
+                        {% for book_genre in book.genres %}
+                          <span class="badge badge-light">{{book_genre}}</span>
+                        {% endfor %}
+                      </p>
                       <p class="card-text"><a href="{{book.text_path|urlencode}}" target="_blank" rel="noopener noreferrer">Читать</a></p>
                     </div>
                   </div>
