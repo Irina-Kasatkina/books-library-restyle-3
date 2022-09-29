@@ -13,7 +13,27 @@
   <body>
     <div class="container">
       <div class="row">
-        {% for books_for_row in books_for_rows %}
+        <div class="col">
+          <div class="ml-0">
+            <nav aria-label="Навигация по страницам каталога">
+              <ul class="pagination">
+                <li class="{{'page-item disabled' if current_page_number == 1 else 'page-item'}}">
+                  <a class="page-link" href="index{{current_page_number-1}}.html">Назад</a>
+                </li>
+                {% for page_number in range(1, pages_count+1) %}
+                  <li class="{{'page-item active' if page_number == current_page_number else 'page-item'}}">
+                    <a class="page-link" href="index{{page_number}}.html">{{page_number}}</a>
+                  </li>
+                {% endfor %}
+                <li class="{{'page-item disabled' if current_page_number == pages_count else 'page-item'}}">
+                    <a class="page-link" href="index{{current_page_number+1}}.html">Вперёд</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+        <div class="w-100"></div>
+        {% for books_for_row in splitted_books_by_rows %}
           {% for book in books_for_row %}
             <div class="col">
               <div class="card mb-3" style="max-width: 540px;">

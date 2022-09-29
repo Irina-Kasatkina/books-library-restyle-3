@@ -84,7 +84,8 @@ def download_book(book_url):
         return
 
     img_url = book_details.get('img_url')
-    if not img_url:
+    img_filename = get_filename_from_url(img_url)
+    if not img_url or img_filename == 'nopic.gif':
         logger.warning(
             f'Книга с номером {book_id} ("{title}") не загружена, '
             'так как на сайте отсутствует картинка её обложки.'
