@@ -145,8 +145,4 @@ cython_debug/
 .idea/
 
 # This project
-books/
-images/
-pages/
 start.bat
-books_details.json
