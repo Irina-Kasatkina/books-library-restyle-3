@@ -94,7 +94,7 @@ def get_service_filepaths():
     js_scripts_dir = 'js'
     service_filepaths = {
         'apple-touch-icon': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'apple-touch-icon.png')),
-        'icon': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'favicon.ico')),
+        'icon': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'favicon.png')),
         'manifest': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'site.webmanifest')),
         'mask-icon': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'safari-pinned-tab.svg')),
         'msapplication-config': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'browserconfig.xml')),
