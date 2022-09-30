@@ -10,21 +10,19 @@ from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 import requests
 
+from constants import BOOKS_DETAILS_JSON_FILEPATH, BOOKS_IMAGES_DIRPATH, BOOKS_TEXTS_DIRPATH
+from constants import LOG_FILEPATH, QUERY_TIMEOUT
+
 
 logger = logging.getLogger(__file__)
-
-
-IMAGES_FOLDER = 'images'
-QUERY_TIMEOUT = 30
-TEXTS_FOLDER = 'books'
 
 
 def create_parser():
     """Создаёт парсер параметров командной строки."""
 
     parser = argparse.ArgumentParser(
-            description='Скачивает с сайта tululu.org тексты книг в подпапку books, '
-                        'а обложки книг в подпапку images '
+            description='Скачивает с сайта tululu.org тексты книг в '
+                        f'{BOOKS_TEXTS_DIRPATH}, а обложки книг в {BOOKS_IMAGES_DIRPATH} '
                         'для книг c номерами из указанного диапазона.'
     )
     parser.add_argument('-s', '--start_id', type=int, default=1,
@@ -97,11 +95,11 @@ def download_book(book_url):
 
     text_url = urljoin(book_url, text_url)
     text_filename = f'{title}.txt'
-    download_file(text_url, TEXTS_FOLDER, text_filename)
+    download_file(text_url, BOOKS_TEXTS_DIRPATH, text_filename)
 
     img_url = urljoin(book_url, img_url)
     img_filename = get_filename_from_url(img_url)
-    download_file(img_url, IMAGES_FOLDER, img_filename)
+    download_file(img_url, BOOKS_IMAGES_DIRPATH, img_filename)
 
     return {
         'title': book_details['title'],
@@ -173,7 +171,7 @@ def get_filename_from_url(url):
 
 def main():
     logger.setLevel(logging.WARNING)
-    logging.basicConfig(filename='library-restyle.log', filemode='w')
+    logging.basicConfig(filename=LOG_FILEPATH, filemode='w')
 
     parser = create_parser()
     args = parser.parse_args()
@@ -191,9 +189,9 @@ def main():
                   for book_id in range(start_id, end_id+1)]
     books_details = download_books(books_urls)
 
-    json_path = args.json_path if args.json_path else 'books_details.json'
-    with open(json_path, 'w', encoding='utf8') as json_file:
-        json.dump(books_details, json_file, ensure_ascii=False, indent=4)
+    if books_details:
+        with open(BOOKS_DETAILS_JSON_FILEPATH, 'w', encoding='utf8') as json_file:
+            json.dump(books_details, json_file, ensure_ascii=False, indent=4)
 
 
 if __name__ == '__main__':

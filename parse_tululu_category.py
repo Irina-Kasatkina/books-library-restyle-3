@@ -7,21 +7,20 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import requests
 
+from constants import BOOKS_DETAILS_JSON_FILEPATH, BOOKS_IMAGES_DIRPATH, BOOKS_TEXTS_DIRPATH
+from constants import LOG_FILEPATH, QUERY_TIMEOUT
 from parse_tululu_books import check_for_redirect, download_books
 
 
 logger = logging.getLogger(__file__)
-
-BOOKS_DETAILS_JSON_FILENAME = 'books_details.json'
-QUERY_TIMEOUT = 30
 
 
 def create_parser():
     """Создаёт парсер параметров командной строки."""
 
     parser = argparse.ArgumentParser(
-            description='Скачивает с сайта tululu.org тексты книг в подпапку books, '
-                        'а обложки книг в подпапку images '
+            description='Скачивает с сайта tululu.org тексты книг в '
+                        f'{BOOKS_TEXTS_DIRPATH}, а обложки книг в {BOOKS_IMAGES_DIRPATH} '
                         'для книг из каталога "Научная фантастика".'
     )
     parser.add_argument('-s', '--start_page', type=int, default=1,
@@ -103,7 +102,7 @@ def parse_category_page(response_content):
 
 def main():
     logger.setLevel(logging.INFO)
-    logging.basicConfig(filename='library-restyle.log', filemode='w')
+    logging.basicConfig(filename=LOG_FILEPATH, filemode='w')
 
     parser = create_parser()
     args = parser.parse_args()
@@ -122,7 +121,7 @@ def main():
         books_details = download_books(books_urls)
 
         if books_details:
-            with open(BOOKS_DETAILS_JSON_FILENAME, 'w', encoding='utf8') as json_file:
+            with open(BOOKS_DETAILS_JSON_FILEPATH, 'w', encoding='utf8') as json_file:
                 json.dump(books_details, json_file, ensure_ascii=False, indent=4)
 
 
