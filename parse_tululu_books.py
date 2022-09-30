@@ -90,9 +90,6 @@ def download_book(book_url):
         )
         return
 
-    book_path = ''
-    img_src = ''
-
     text_url = urljoin(book_url, text_url)
     text_filename = f'{title}.txt'
     download_file(text_url, BOOKS_TEXTS_DIRPATH, text_filename)

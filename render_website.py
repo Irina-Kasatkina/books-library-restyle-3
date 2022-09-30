@@ -6,7 +6,6 @@ from livereload import Server
 from more_itertools import chunked
 
 from constants import BOOKS_DETAILS_JSON_FILEPATH, BOOKS_IMAGES_DIRPATH, BOOKS_TEXTS_DIRPATH
-from constants import LOG_FILEPATH, QUERY_TIMEOUT
 
 
 BOOKS_COUNT_PER_PAGE = 20
@@ -80,7 +79,7 @@ def render_html_page(current_page_number, template, books_on_page, pages_count):
         splitted_books_by_rows=splitted_books_by_rows,
     )
 
-    page_filepath = Path.cwd() / PAGES_DIRPATH  / f'index{current_page_number}.html'
+    page_filepath = Path.cwd() / PAGES_DIRPATH / f'index{current_page_number}.html'
     with open(page_filepath, 'w', encoding="utf8") as file:
         file.write(rendered_page)
 
@@ -99,7 +98,8 @@ def get_service_filepaths():
         'mask-icon': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'safari-pinned-tab.svg')),
         'msapplication-config': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'browserconfig.xml')),
         'bootstrap.min.css': str(PurePosixPath(parent_dir, STATIC_DIRPATH, css_files_dir, 'bootstrap.min.css')),
-        'jquery-3.3.1.slim.min.js': str(PurePosixPath(parent_dir, STATIC_DIRPATH, js_scripts_dir, 'jquery-3.3.1.slim.min.js')),
+        'jquery-3.3.1.slim.min.js': str(PurePosixPath(parent_dir, STATIC_DIRPATH, js_scripts_dir,
+                                                      'jquery-3.3.1.slim.min.js')),
         'popper.min.js': str(PurePosixPath(parent_dir, STATIC_DIRPATH, js_scripts_dir, 'popper.min.js')),
         'bootstrap.min.js': str(PurePosixPath(parent_dir, STATIC_DIRPATH, js_scripts_dir, 'bootstrap.min.js')),       
     }
