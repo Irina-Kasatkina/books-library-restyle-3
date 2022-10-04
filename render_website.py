@@ -49,9 +49,7 @@ def get_books_details():
     """Читает из json-файла информацию о загруженных книгах."""
 
     with open(BOOKS_DETAILS_JSON_FILEPATH, 'r', encoding='utf-8') as books_details_json_file:
-        books_details_json = books_details_json_file.read()
-
-    books_details = json.loads(books_details_json)
+        books_details = json.load(books_details_json_file)
     return books_details
 
 
