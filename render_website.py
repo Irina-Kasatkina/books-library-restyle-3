@@ -68,10 +68,8 @@ def add_paths_to_books_details(books_details):
 def render_html_page(current_page_number, template, books_on_page, pages_count):
     """Генерирует html-страницу из шаблона."""
 
-    service_filepaths = get_service_filepaths()
     splitted_books_by_rows = list(chunked(books_on_page, BOOKS_COUNT_PER_ROW))
     rendered_page = template.render(
-        service_filepaths=service_filepaths,
         pages_count=pages_count,
         current_page_number=current_page_number,
         splitted_books_by_rows=splitted_books_by_rows,
@@ -80,28 +78,6 @@ def render_html_page(current_page_number, template, books_on_page, pages_count):
     page_filepath = Path.cwd() / PAGES_DIRPATH / f'index{current_page_number}.html'
     with open(page_filepath, 'w', encoding="utf8") as file:
         file.write(rendered_page)
-
-
-def get_service_filepaths():
-    """Возвращает пути к служебным файлам: css, js, favicons."""
-
-    parent_dir = '..'
-    css_files_dir = 'css'
-    favicons_dir = 'favicons'
-    js_scripts_dir = 'js'
-    service_filepaths = {
-        'apple-touch-icon': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'apple-touch-icon.png')),
-        'icon': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'favicon.png')),
-        'manifest': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'site.webmanifest')),
-        'mask-icon': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'safari-pinned-tab.svg')),
-        'msapplication-config': str(PurePosixPath(parent_dir, STATIC_DIRPATH, favicons_dir, 'browserconfig.xml')),
-        'bootstrap.min.css': str(PurePosixPath(parent_dir, STATIC_DIRPATH, css_files_dir, 'bootstrap.min.css')),
-        'jquery-3.3.1.slim.min.js': str(PurePosixPath(parent_dir, STATIC_DIRPATH, js_scripts_dir,
-                                                      'jquery-3.3.1.slim.min.js')),
-        'popper.min.js': str(PurePosixPath(parent_dir, STATIC_DIRPATH, js_scripts_dir, 'popper.min.js')),
-        'bootstrap.min.js': str(PurePosixPath(parent_dir, STATIC_DIRPATH, js_scripts_dir, 'bootstrap.min.js')),       
-    }
-    return service_filepaths
 
 
 def main():
